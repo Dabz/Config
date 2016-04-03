@@ -1,0 +1,9 @@
+@CS@
+@CM@@CM@ @FILE-NAME@ for Project in @PWD@
+@CM@@CM@
+@CM@@CM@ Made by @USER-NAME@
+@CM@@CM@ @LOGIN-STRING@   <@USER-MAIL@>
+@CM@@CM@
+@CM@@CM@ Started on  @DATE-STAMP@ @USER-NAME@
+@CM@@CM@ Last update @DATE-STAMP@ @USER-NAME@
+@CE@

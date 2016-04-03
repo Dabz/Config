@@ -1,0 +1,42 @@
+  Description
+
+This repository contains my configuration files, documents and scripts
+for vim,mutt,zsh and a lot of softwares
+
+
+    Vim
+
+      Features
+
+        C-support (http://www.vim.org/scripts/script.php?script_id=213)
+        Omlet for ocaml (www.vim.org/scripts/script.php?script_id=1196)
+  	FuzzyFinder (https://bitbucket.org/ns9tks/vim-fuzzyfinder/)
+	NerdTree (https://github.com/scrooloose/nerdtree)
+	ProtoDef (https://github.com/ewiplayer/vim-protodef)
+	OmniCpp (http://www.vim.org/scripts/script.php?script_id=1520)
+	A.vim (http://www.vim.org/scripts/script.php?script_id=31)
+
+        And a lot of useful or useless things
+
+      Shell environment
+
+        -FULLNAME, Contain your full name; if it is not defined it is equal to
+        your username
+
+        -EMAIL, Contain your email; if not defined, equal to username@epita.fr
+
+        -NO_STRICT_EPITA_HEADERS, defined it if you want to use non-strict
+        headers
+
+        -EPITA_STRICT, Declared it if you must respect the epita's coding style
+
+
+PS
+	My configuration has been created by me and for me; they has been build
+	in order to follow the coding style of my school, it
+	probably contain a lot of useless stuff for a casual personn
+	(like a coding style checking)
+
+
+If you have any sugestion, question feel free to contact me at
+<gaspar_d@epita.fr>

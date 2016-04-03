@@ -1,0 +1,37 @@
+#!/bin/sh
+##
+## configure for Project in /home/Danz/config
+##
+## Made by Gasparina Damien
+## Login   <gaspar_d@epita.fr>
+##
+## Started on  Tue 29 Jun 2010 09:32:33 PM CST Gasparina Damien
+## Last update Thu 02 Dec 2010 05:50:59 PM CET Gasparina Damien
+##
+
+files="ncmpcpp vim vimrc zshrc bashrc config/awesome"
+link="ln -s"
+move=mv
+rm=rm
+path=$HOME
+pws=$PWD
+
+if [ -e "~/.config" ]; then
+  echo  "~/.config created"
+  mkdir ~/.config
+fi
+
+for x in $files; do
+    f=$path/.$x
+
+    #If it is a regular file, we move it to file.old
+    if [ -f "$f" ]; then
+        echo "Warning, $f already exist, I move it to $f.old"
+        $move $f $f.old
+    #if it is already a link, we delete it
+    elif [ -L "$f" ]; then
+        echo "Warning, $f is already a symbolic link, I remove it"
+        $rm $f
+    fi
+    $link $pws/$x $f
+done
