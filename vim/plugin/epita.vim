@@ -58,6 +58,8 @@ au BufNewFile *.cc silent call CPP_New()
 au BufNewFile *.cpp silent call CPP_New()
 au BufNewFile *.go silent call C_New()
 au BufNewFile *.tpl silent call CPP_New()
+au BufNewFile *.py silent call PY_New()
+au BufNewFile *.sh silent call PY_New()
 
 au BufNewFile *.ml silent call ML_New()
 au BufWritePost *.ml silent call ML_Write()
@@ -69,6 +71,8 @@ au BufWritePre *.hxx silent call C_Write()
 au BufWritePre *.cpp silent call C_Write()
 au BufWritePre *.tpl silent call C_Write()
 au BufWritePre *.go silent call C_Write()
+au BufWritePre *.py silent call PY_Write()
+au BufWritePre *.sh silent call PY_Write()
 
 au BufRead *.c silent call C_Read()
 au BufRead *.h silent call C_Read()
@@ -78,6 +82,8 @@ au BufRead *.hxx silent call CPP_Read()
 au BufRead *.cpp silent call CPP_Read()
 au BufRead *.tpl silent call CPP_Read()
 au BufRead *.go silent call C_Read()
+au BufRead *.py silent call PY_Read()
+au BufRead *.sh silent call PY_Read()
 
 function Check_C()
   call CheckFile('{', '}', 40, '/*', '**','*/', '//', 80)
@@ -88,6 +94,16 @@ function C_New()
   let tmp = expand("%:t")
   execute "% s,@PROJECT@," . substitute(tmp, "\\.[^\\.]$", "",  "")
   call ReplaceFields('/*', '**', '*/')
+  exec 11
+  normal dG
+  call HiWhiteSpace()
+endfun
+
+function PY_New()
+  0r ~/.vim/template/epita_header.tpl
+  let tmp = expand("%:t")
+  execute "% s,@PROJECT@," . substitute(tmp, "\\.[^\\.]$", "",  "")
+  call ReplaceFields('#', '#', '#')
   exec 11
   normal dG
   call HiWhiteSpace()
@@ -154,6 +170,12 @@ function CPP_Read()
   endif
 endfun
 
+function PY_Read()
+  if exists("$EPITA_STRICT")
+    call HiWhiteSpace()
+  endif
+endfun
+
 function ML_Read()
   call HiWhiteSpace()
   call HiOverLengthh()
@@ -167,6 +189,12 @@ function C_Write()
 endfun
 
 function ML_Write()
+  normal mS
+  execute "1,8 s,\\(Last update \\).*,\\1" . strftime("%c") . " " . g:mename . ",e"
+  normal `S
+endfun
+
+function PY_Write()
   normal mS
   execute "1,8 s,\\(Last update \\).*,\\1" . strftime("%c") . " " . g:mename . ",e"
   normal `S

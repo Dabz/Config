@@ -5,7 +5,7 @@
 "" Login   <sigour_b@epita.fr>, <gaspar_d@epita.fr>
 ""
 "" Started on  Fri Feb 24 23:26:58 2006 SIGOURE Benoit
-"" Last update Sun 15 Nov 18:18:28 2015 Gasparina Damien
+"" Last update Wed 18 May 14:53:52 2016 gaspar_d
 ""
 
 " original author: unknown
@@ -43,14 +43,14 @@ if has("autocmd")
     "au BufNewFile *.hcc silent call HFile_New()
     au BufNewFile *.ml silent call MlFile_New()
     au BufNewFile *.ti[gh] silent call CFile_New()
-    au BufNewFile *.sh silent call SHFile_New()
+    "au BufNewFile *.sh silent call SHFile_New()
     au BufNewFile configure.* silent call SHARPFile_New()
     au BufNewFile configure silent call SHFile_New()
     au BufNewFile bootstrap silent call SHFile_New()
     au BufNewFile .bash* silent call SHFile_New()
     au BufNewFile .zsh* silent call SHFile_New()
     au BufNewFile *.rb silent call RUBYFile_New()
-    au BufNewFile *.py silent call PYFile_New()
+    "au BufNewFile *.py silent call PYFile_New()
     au BufNewFile *.sed silent call SEDFile_New()
     au BufNewFile *.vim silent call VIMFile_New()
     au BufNewFile *.aasm silent call AASMFile_New()
@@ -66,13 +66,13 @@ if has("autocmd")
     au BufWritePre *.hcc silent call CUpdate_Headers()
     au BufWritePre *.hcc silent call CUpdate_Headers()
     au BufWritePre *.ti[gh] silent call CUpdate_Headers()
-    au BufWritePre *.sh silent call SHUpdate_Headers()
+    "au BufWritePre *.sh silent call SHUpdate_Headers()
     au BufWritePre configure* silent call SHUpdate_Headers()
     au BufWritePre bootstrap silent call SHUpdate_Headers()
     au BufWritePre .bash* silent call SHUpdate_Headers()
     au BufWritePre .zsh* silent call SHUpdate_Headers()
     au BufWritePre *.rb silent call SHUpdate_Headers()
-    au BufWritePre *.py silent call SHUpdate_Headers()
+    "au BufWritePre *.py silent call SHUpdate_Headers()
     au BufWritePre *.sed silent call SHUpdate_Headers()
     au BufWritePre *.pl silent call SHUpdate_Headers()
     au BufWritePre *.vim silent call CUpdate_Headers()
@@ -119,7 +119,7 @@ if has("autocmd")
   function PYFile_New()
     $r ~/.vim/template/py.tpl
     call ReplaceFields('##', '##', '##')
-    execute "3"
+    execute "2"
     normal 5w
   endfun
 
