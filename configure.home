@@ -1,0 +1,37 @@
+#!/bin/sh
+##
+## configure for Project configuration
+##
+## Started on  Tue 29 Jun 2010 09:32:33 PM CST Gasparina Damien
+## Last update Tue 26 Dec 2017 05:33:53 PM CET gaspar_d
+##
+
+files="vim vimrc zshrc bashrc config/awesome oh-my-zsh mpd"
+link="ln -s"
+move=mv
+cp='cp -rf'
+rm=rm
+path=$HOME
+pws=$PWD
+
+if [ ! -d "$path/.config" ]; then
+  echo "$path/.config created"
+  mkdir $path/.config
+fi
+
+for file in $files; do
+    abs=$path/.$file
+
+    #If it is a regular file, we move it to file.old
+    if [ -f "$abs" ]; then
+        echo "Warning, $abs already exist, Let's move it to $abs.old"
+        $move $abs $abs.old
+    #if it is already a link, we delete it
+    elif [ -L "$abs" ]; then
+        echo "Warning, $abs is already a symbolic link, removing it"
+        $rm $abs
+    fi
+    $cp $pws/$file $abs
+done
+
+cp $pws/config/awesome.rc.lua $path/.config/awesome/rc.lua

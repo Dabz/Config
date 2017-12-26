@@ -1,0 +1,11 @@
+[submodule "oh-my-zsh"]
+	path = oh-my-zsh
+	url = git://github.com/robbyrussell/oh-my-zsh.git
+[submodule "config/awesome"]
+	path = config/awesome
+	url = https://github.com/lcpz/awesome-copycats.git
+	branch = master
+[submodule "vim/bundle/Vundle.vim"]
+	path = vim/bundle/Vundle.vim
+	url = https://github.com/VundleVim/Vundle.vim.git
+	branch = master

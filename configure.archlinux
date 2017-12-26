@@ -1,0 +1,226 @@
+#!/bin/sh
+##
+## configure for Project configuration
+##
+## Started on  Tue 29 Jun 2010 09:32:33 PM CST Gasparina Damien
+## Last update Tue 26 Dec 2017 05:43:12 PM CET gaspar_d
+##
+
+export LOG=$PWD/configure.log
+export LOCALE=en_US.UTF-8
+
+export RED='\033[0;31m'
+export BLUE='\033[0;34m'
+export GREEN='\033[0;32m'
+export NC='\033[0m'
+
+exec 3<> $LOG
+
+install_package() {
+  if [ -x "$(command -v yaourt)" ]; then
+    PKG_CMD=yaourt
+  else
+    PKG_CMD=pacman
+  fi
+
+  $PKG_CMD -Sq --noconfirm --needed $@
+}
+export -f install_package
+
+display_section() {
+  echo -e ${BLUE} $@ ${NC}
+  string=$@
+  for (( i=0; i<=${#string}; i++ )); do
+    echo -n "-";
+  done
+  echo
+}
+export -f display_section
+
+exit_section() {
+  echo -e ${GREEN} $@ ${NC}
+  string=$@
+  for (( i=0; i<=${#string}; i++ )); do
+    echo -n "-";
+  done
+  echo
+}
+export -f exit_section
+
+exit_ungracefully() {
+  echo -e "${RED}Stopping ungracefully the configuration${NC}"
+  echo "Check the log for more information $LOG"
+  exit 1
+}
+export -f exit_ungracefully
+
+configure_system() {
+  display_section "Configuring locale"
+  if grep -q "^$LOCALE" /etc/locale.gen; then
+    echo "Locale entry already exists"
+  else
+    echo "$LOCALE UTF-8" >> /etc/locale.gen
+  fi
+  locale-gen >&3
+  localectl set-locale LANG=$LOCALE
+  ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
+  hwclock --systohc
+  exit_section "Done"
+
+  display_section "Setting hostname"
+  if [ -f /etc/hostname ]; then
+    echo -n "Hostname already configured with: "
+    cat  /etc/hostname
+  else
+    echo "Enter machine hostname followed by [ENTER]: "
+    read -s LHOSTNAME
+    echo $LHOSTNAME > /etc/hostname
+    echo "127.0.1.1	$LHOSTNAME.localdomain	$LHOSTNAME"
+  fi
+  exit_section "Done"
+
+  display_section "Starting dhcpcd"
+  systemctl start dhcpcd >&3
+  systemctl enable dhcpcd >&3
+  exit_section "Done"
+
+  display_section "Installing base devel package"
+  pacman -Sqy --noconfirm >&3
+  install_package vim git zsh
+  install_package base-devel python2 linux-headers
+  exit_section Done
+
+ display_section "Refreshing base package"
+  yaourt -Syuq --noconfirm >&3
+  exit_section "Done"
+
+  display_section "Installing packages"
+  install_package openssh zsh
+  install_package xorg-server xterm terminator
+  install_package awesome vicious
+  install_package lightdm lightdm-kde-greeter
+  install_package nm-connection-editor networkmanager networkmanager-openvpn
+  install_package mpd ncmpcpp
+  install_package cmake automake
+  install_package rust go nodejs npm
+  exit_section "Done"
+
+  display_section "Configuring sudo"
+  install_package sudo
+  if grep --quiet '^%wheel ALL=(ALL) NOPASSWD: ALL' /etc/sudoers; then
+    exit_section "%wheel already configured"
+  else
+    echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+    exit_section "Entry added for %wheel"
+  fi
+}
+export -f configure_system
+
+
+configure_user() {
+  display_section "Configuring home"
+  ./configure.home >&3
+  if [ $? != 0 ]; then
+    echo "An issue occured while configuring the configuration for user $USER"
+    exit_ungracefully
+  fi
+  exit_section "Done"
+
+  cd $HOME
+
+  display_section "Installing yaourt"
+  if [ ! -x "$(command -v yaourt)" ]; then
+    OLD_PWD=$PWD
+    cd /tmp/
+    git clone https://aur.archlinux.org/package-query.git  >&3
+    cd package-query
+    makepkg -si --noconfirm >&3
+    cd ..
+    git clone https://aur.archlinux.org/yaourt.git >&3
+    cd yaourt
+    makepkg -si >&3
+    cd ..
+    yaourt --version >&3
+    cd $OLD_PWD
+    if [ $? != 0 ]; then
+      echo "An issue occured while installing yaourt for user $USER"
+      exit_ungracefully
+    fi
+    exit_section "Yaourt has been installed"
+  else
+    exit_section "Yaourt already exists"
+  fi
+
+  display_section "Configuring VIM"
+  vim +PluginInstall +qall
+  exit_section "Done"
+
+  display_section "Building VIM YCM"
+  cd $HOME/.vim/bundle/YouCompleteMe
+  ./install.py --clang-completer  --go-completer --js-completer
+  exit_section "Done"
+}
+export -f configure_user
+
+CONFIGURE_SYSTEM=0
+CONFIGURE_USER=0
+
+
+while getopts ":aus" opt; do
+  case $opt in
+    a)
+      CONFIGURE_SYSTEM=1
+      CONFIGURE_USER=1
+      ;;
+    u)
+      CONFIGURE_USER=1
+      ;;
+    s)
+      CONFIGURE_SYSTEM=1
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+
+if [ $CONFIGURE_SYSTEM -eq 1 ]; then
+  # configure global system
+  su -c "bash -c configure_system"
+  if [ $? != 0 ]; then
+    echo "An issue occured while configuring the system"
+    exit_ungracefully
+  fi
+fi
+
+# create user
+if [ $CONFIGURE_USER -eq 1 ]; then
+  display_section "Creating or selecting user"
+  echo -n "Enter username, followed by [ENTER]: "
+  read LUSER
+  if ! id -u $LUSER > /dev/null 2>&1; then
+    echo "$LUSER doesn't seem to exist, let's create it"
+    echo "Enter username's password, followed by [ENTER]: "
+    read -s LPASSWORD
+    useradd $LUSER -d /home/$LUSER -m -G wheel,power,storage -p $LPASSWORD -s /bin/zsh >&3
+    if [ $? != 0 ]; then
+      echo "An issue occured while creating user $LUSER"
+      exit_ungracefully
+    fi
+    exit_section "User $LUSER created"
+  else
+    exit_section "User $LUSER already exists"
+  fi
+
+  # configure user environment
+  chmod o+rx ./configure.home
+  su $LUSER -c "bash -c configure_user"
+  if [ $? != 0 ]; then
+    echo "An issue occured while configuring the configuration for user $LUSER"
+    exit_ungracefully
+  fi
+fi
+
+exit_section "Configuration finished!"
+
+exec 3>&-
