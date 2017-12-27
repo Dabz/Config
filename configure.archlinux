@@ -105,6 +105,12 @@ configure_system() {
   install_package rust go nodejs npm
   exit_section "Done"
 
+  display_section "Enabling packages"
+  systemctl enable sshd
+  systemctl enable lightdm
+  systemctl enable mpd
+  exit_section "Done"
+
   display_section "Configuring sudo"
   install_package sudo
   if grep --quiet '^%wheel ALL=(ALL) NOPASSWD: ALL' /etc/sudoers; then

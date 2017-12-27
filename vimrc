@@ -34,7 +34,7 @@ filetype plugin indent on    " required
 
 " theme configuration
 syntax on
-silent! color deux
+silent! color deus
 set relativenumber
 set expandtab
 set tabstop=2
