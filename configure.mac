@@ -1,0 +1,76 @@
+#!/bin/bash
+##
+## configure for Project configuration
+##
+## Started on  Tue 29 Jun 2010 09:32:33 PM CST Gasparina Damien
+## Last update Tue 26 Dec 2017 05:43:12 PM CET gaspar_d
+##
+
+export LOG=$PWD/configure.log
+export LOCALE=en_US.UTF-8
+
+export RED='\033[0;31m'
+export BLUE='\033[0;34m'
+export GREEN='\033[0;32m'
+export NC='\033[0m'
+
+exec 3<> $LOG
+
+display_section() {
+  echo -e ${BLUE} $@ ${NC}
+  string=$@
+  for (( i=0; i<=${#string}; i++ )); do
+    echo -n "-";
+  done
+  echo
+}
+export -f display_section
+
+exit_section() {
+  echo -e ${GREEN} $@ ${NC}
+  string=$@
+  for (( i=0; i<=${#string}; i++ )); do
+    echo -n "-";
+  done
+  echo
+}
+export -f exit_section
+
+exit_ungracefully() {
+  echo -e "${RED}Stopping ungracefully the configuration${NC}"
+  echo "Check the log for more information $LOG"
+  exit 1
+}
+export -f exit_ungracefully
+
+configure_user() {
+  display_section "Configuring home"
+  ./configure.home >&3
+  if [ $? != 0 ]; then
+    echo "An issue occured while configuring the configuration for user $USER"
+    exit_ungracefully
+  fi
+  exit_section "Done"
+
+  cd $HOME
+
+  display_section "Configuring VIM"
+  vim +PluginInstall +qall
+  exit_section "Done"
+
+  display_section "Building VIM YCM"
+  cd $HOME/.vim/bundle/YouCompleteMe
+  ./install.py --clang-completer  --go-completer --js-completer
+  exit_section "Done"
+}
+export -f configure_user
+
+configure_user
+if [ $? != 0 ]; then
+  echo "An issue occured while configuring the configuration for user $LUSER"
+  exit_ungracefully
+fi
+
+exit_section "Configuration finished!"
+
+exec 3>&-

@@ -6,11 +6,11 @@
 ## Last update Tue 26 Dec 2017 05:33:53 PM CET gaspar_d
 ##
 
-files="vim vimrc zshrc bashrc config/awesome oh-my-zsh mpd"
+files="vim vimrc zshrc bashrc config/awesome oh-my-zsh mpd.conf"
 link="ln -s"
 move=mv
 cp='cp -rf'
-rm=rm
+rm='rm -rf'
 path=$HOME
 pws=$PWD
 
@@ -31,6 +31,7 @@ for file in $files; do
         echo "Warning, $abs is already a symbolic link, removing it"
         $rm $abs
     fi
+    $rm $abs 
     $cp $pws/$file $abs
 done
 
