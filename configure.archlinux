@@ -96,7 +96,8 @@ configure_system() {
 
   display_section "Installing packages"
   install_package openssh zsh
-  install_package xorg-server xterm terminator arandr
+  install_package xorg-server xterm terminator arandr terminus-font
+  install_package alsa-firmware alsa-plugins alsa-tools
   install_package awesome vicious
   install_package lightdm lightdm-kde-greeter
   install_package nm-connection-editor networkmanager networkmanager-openvpn

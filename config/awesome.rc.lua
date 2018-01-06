@@ -20,6 +20,8 @@ local lain          = require("lain")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
 -- }}}
+local xresources    = require("beautiful.xresources")
+local dpi           = xresources.apply_dpi
 
 -- {{{ Error handling
 if awesome.startup_errors then
@@ -84,8 +86,8 @@ local guieditor    = "atom"
 awful.util.terminal = terminal
 awful.util.tagnames = { "1", "2", "3", "4", "5" }
 awful.layout.layouts = {
-    awful.layout.suit.tile,
     awful.layout.suit.floating,
+    awful.layout.suit.tile,
     awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
     awful.layout.suit.tile.top,
@@ -148,7 +150,7 @@ awful.util.tasklist_buttons = awful.util.table.join(
                                  instance:hide()
                                  instance = nil
                              else
-                                 instance = awful.menu.clients({ theme = { width = 250 } })
+                                 instance = awful.menu.clients({ theme = { width = dpi(250) } })
                              end
                         end
                      end),
@@ -171,6 +173,9 @@ lain.layout.cascade.tile.ncol          = 2
 
 local theme_path = string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv("HOME"), chosen_theme)
 beautiful.init(theme_path)
+beautiful.get().menu_height  = dpi(16)
+beautiful.get().menu_width   = dpi(70)
+beautiful.get().border_width = dpi(1)
 -- }}}
 
 -- {{{ Menu
@@ -182,7 +187,7 @@ local myawesomemenu = {
     { "quit", function() awesome.quit() end }
 }
 awful.util.mymainmenu = freedesktop.menu.build({
-    icon_size = beautiful.menu_height or 16,
+    icon_size = beautiful.menu_height or dpi(16),
     before = {
         { "Awesome", myawesomemenu, beautiful.awesome_icon },
         -- other triads can be put here
@@ -671,7 +676,7 @@ client.connect_signal("request::titlebars", function(c)
         end)
     )
 
-    awful.titlebar(c, {size = 16}) : setup {
+    awful.titlebar(c, {size = dpi(16)}) : setup {
         { -- Left
             awful.titlebar.widget.iconwidget(c),
             buttons = buttons,
