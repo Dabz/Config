@@ -62,3 +62,8 @@ let g:DoxygenToolkit_authorName =   $FULLNAME
 let g:DoxygenToolkit_licenseTag =   "MIT"
 let g:DoxygenToolkit_interCommentTag = "** "
 let g:email = $MAIL
+
+" Syntax configuration
+set tabstop=2
+set shiftwidth=2
+set softtabstop=0 noexpandtab
