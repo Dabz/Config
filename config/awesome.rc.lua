@@ -74,17 +74,17 @@ local themes = {
     "vertex",          -- 10
 }
 
-local chosen_theme = themes[7]
+local chosen_theme = themes[5]
 local modkey       = "Mod4"
 local altkey       = "Mod1"
 local terminal     = "terminator"
-local editor       = os.getenv("EDITOR") or "nano"
-local gui_editor   = "gvim"
+local editor       = os.getenv("EDITOR") or "vim"
+local gui_editor   = "atom"
 local browser      = "firefox"
 local guieditor    = "atom"
 
 awful.util.terminal = terminal
-awful.util.tagnames = { "1", "2", "3", "4", "5" }
+awful.util.tagnames = { "terminal", "web", "dev", "misc", "slack", "whats" }
 awful.layout.layouts = {
     awful.layout.suit.floating,
     awful.layout.suit.tile,
@@ -174,7 +174,7 @@ lain.layout.cascade.tile.ncol          = 2
 local theme_path = string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv("HOME"), chosen_theme)
 beautiful.init(theme_path)
 beautiful.get().menu_height  = dpi(16)
-beautiful.get().menu_width   = dpi(70)
+beautiful.get().menu_width   = dpi(100)
 beautiful.get().border_width = dpi(1)
 -- }}}
 
@@ -194,6 +194,7 @@ awful.util.mymainmenu = freedesktop.menu.build({
     },
     after = {
         { "Open terminal", terminal },
+				{ "Lock", function() awful.util.spawn("light-locker-command -l") end },
         -- other triads can be put here
     }
 })
@@ -345,6 +346,8 @@ globalkeys = awful.util.table.join(
               {description = "open a terminal", group = "launcher"}),
     awful.key({ modkey, "Control" }, "r", awesome.restart,
               {description = "reload awesome", group = "awesome"}),
+    awful.key({ modkey, "Control" }, "l", function() awful.util.spawn("light-locker-command -l") end,
+              {description = "reload awesome", group = "awesome"}),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit,
               {description = "quit awesome", group = "awesome"}),
 
@@ -389,24 +392,38 @@ globalkeys = awful.util.table.join(
               {description = "show weather", group = "widgets"}),
 
     -- Brightness
-    awful.key({ }, "XF86MonBrightnessUp", function () awful.util.spawn("xbacklight -inc 10") end,
-              {description = "+10%", group = "hotkeys"}),
-    awful.key({ }, "XF86MonBrightnessDown", function () awful.util.spawn("xbacklight -dec 10") end,
-              {description = "-10%", group = "hotkeys"}),
+    awful.key({ }, "XF86MonBrightnessUp", function () 
+			awful.util.spawn("brightnessctl set +10%") 
+			awful.spawn.with_shell("notify-send \"`brightnessctl | grep '%'`\"")
+		end,
+		{description = "+10%", group = "hotkeys"}),
+    awful.key({ }, "XF86MonBrightnessDown", function () 
+			awful.util.spawn("brightnessctl set 10-%") 
+			awful.spawn.with_shell("notify-send \"`brightnessctl | grep '%'`\"")
+		end,
+		{description = "-10%", group = "hotkeys"}),
 
     -- ALSA volume control
-    awful.key({ altkey }, "Up",
+    awful.key({ }, "XF86AudioRaiseVolume",
         function ()
-            os.execute(string.format("amixer -q set %s 1%%+", beautiful.volume.channel))
+						awful.spawn.with_shell("for SINK in `pacmd list-sinks | grep 'index:' | cut -b12-`; do pactl set-sink-volume $SINK +5%; done")
             beautiful.volume.update()
+						awful.spawn.with_shell("notify-send \"volume: `amixer sget Master | grep '%' | head -n 1 | sed -E 's/.*\\[([0-9]+%)\\].*/\\1/'`\"")
         end,
         {description = "volume up", group = "hotkeys"}),
-    awful.key({ altkey }, "Down",
+    awful.key({ }, "XF86AudioLowerVolume",
         function ()
-            os.execute(string.format("amixer -q set %s 1%%-", beautiful.volume.channel))
+						awful.spawn.with_shell("for SINK in `pacmd list-sinks | grep 'index:' | cut -b12-`; do pactl set-sink-volume $SINK -5%; done")
             beautiful.volume.update()
+						awful.spawn.with_shell("notify-send \"volume: `amixer sget Master | grep '%' | head -n 1 | sed -E 's/.*\\[([0-9]+%)\\].*/\\1/'`\"")
         end,
         {description = "volume down", group = "hotkeys"}),
+    awful.key({ }, "XF86AudioMute",
+        function ()
+            os.execute(string.format("amixer -q set %s toggle", beautiful.volume.channel))
+            beautiful.volume.update()
+        end,
+        {description = "mute volume", group = "hotkeys"}),
     awful.key({ altkey }, "m",
         function ()
             os.execute(string.format("amixer -q set %s toggle", beautiful.volume.togglechannel or beautiful.volume.channel))
@@ -473,8 +490,8 @@ globalkeys = awful.util.table.join(
               {description = "copy gtk to terminal", group = "hotkeys"}),
 
     -- User programs
-    awful.key({ modkey }, "q", function () awful.spawn(browser) end,
-              {description = "run browser", group = "launcher"}),
+    --awful.key({ modkey }, "q", function () awful.spawn(browser) end,
+    --          {description = "run browser", group = "launcher"}),
     awful.key({ modkey }, "a", function () awful.spawn(guieditor) end,
               {description = "run gui editor", group = "launcher"}),
 
@@ -483,18 +500,18 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "p", function() menubar.show() end,
               {description = "show the menubar", group = "launcher"})
     --]]
-    --[[ dmenu
-    awful.key({ modkey }, "x", function ()
-        awful.spawn(string.format("dmenu_run -i -fn 'Monospace' -nb '%s' -nf '%s' -sb '%s' -sf '%s'",
+    --[[ dmenu --]]
+    awful.key({ modkey }, "r", function ()
+        awful.spawn(string.format("dmenu_run -i -nb '%s' -nf '%s' -sb '%s' -sf '%s'",
         beautiful.bg_normal, beautiful.fg_normal, beautiful.bg_focus, beautiful.fg_focus))
 		end,
-        {description = "show dmenu", group = "launcher"})
+        {description = "show dmenu", group = "launcher"}),
     --]]
     -- Prompt
-    awful.key({ modkey }, "r", function () awful.screen.focused().mypromptbox:run() end,
-              {description = "run prompt", group = "launcher"}),
+    awful.key({ modkey }, "x", function () awful.screen.focused().mypromptbox:run() end,
+              {description = "run prompt", group = "launcher"})
 
-    awful.key({ modkey }, "x",
+    --[[awful.key({ modkey }, "m",
               function ()
                   awful.prompt.run {
                     prompt       = "Run Lua code: ",
@@ -631,7 +648,16 @@ awful.rules.rules = {
 
     -- Set Firefox to always map on the first tag on screen 2.
     { rule = { class = "Firefox" },
-      properties = { screen = 1, tag = awful.util.tagnames[2] } },
+      properties = { screen = 1, tag = awful.util.tagnames[2], maximized = true } },
+
+    -- Set Slack to always map on the first tag on screen 5.
+    { rule = { class = "Slack" },
+      properties = { screen = 1, tag = awful.util.tagnames[5], maximized = true } },
+
+    -- Set Slack to always map on the first tag on screen 5.
+    { rule = { class = "Whatsapp-web-desktop" },
+      properties = { screen = 1, tag = awful.util.tagnames[6], maximized = true } },
+
 
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
@@ -722,3 +748,16 @@ client.connect_signal("focus",
     end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+
+
+local function autorun_at_startup(cmd)
+	awful.spawn.with_shell(string.format("pgrep %s > /dev/null || %s", cmd, cmd))
+end
+
+awful.util.spawn("light-locker --late-locking --lock-on-suspend")
+
+autorun_at_startup("nm-applet")
+autorun_at_startup("firefox")
+autorun_at_startup("blueman-applet")
+autorun_at_startup("pasystray")
+autorun_at_startup("slack")
