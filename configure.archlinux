@@ -97,12 +97,12 @@ configure_system() {
   display_section "Installing packages"
   install_package openssh zsh
   install_package xorg-server xterm terminator arandr terminus-font
-  install_package alsa-firmware alsa-plugins alsa-tools
+  install_package alsa-firmware alsa-plugins alsa-tools pulseaudio pavucontrol
   install_package awesome vicious
-  install_package lightdm lightdm-kde-greeter
+  install_package lightdm 
   install_package nm-connection-editor networkmanager networkmanager-openvpn
   install_package mpd ncmpcpp
-  install_package cmake automake
+  install_package cmake automake dmenu
   install_package rust go nodejs npm
   exit_section "Done"
 

@@ -22,6 +22,8 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 -- }}}
 local xresources    = require("beautiful.xresources")
 local dpi           = xresources.apply_dpi
+require("awful.remote")
+require("screenful")
 
 -- {{{ Error handling
 if awesome.startup_errors then
@@ -102,7 +104,7 @@ awful.layout.layouts = {
     --awful.layout.suit.corner.ne,
     --awful.layout.suit.corner.sw,
     --awful.layout.suit.corner.se,
-    --lain.layout.cascade,
+    lain.layout.cascade,
     --lain.layout.cascade.tile,
     --lain.layout.centerwork,
     --lain.layout.centerwork.horizontal,
@@ -394,12 +396,23 @@ globalkeys = awful.util.table.join(
     -- Brightness
     awful.key({ }, "XF86MonBrightnessUp", function () 
 			awful.util.spawn("brightnessctl set +10%") 
-			awful.spawn.with_shell("notify-send \"`brightnessctl | grep '%'`\"")
+			awful.spawn.easy_async_with_shell("brightnessctl | grep '%'", function(stdout, stderr) 
+				naughty.destroy_all_notifications()
+				naughty.notify({ 
+					preset = naughty.config.presets.low,
+					text = stdout:gsub("^%s*(.-)%s*$", "%1"), position = "top_right", timeout = 2 })
+			end
+			) 
 		end,
 		{description = "+10%", group = "hotkeys"}),
     awful.key({ }, "XF86MonBrightnessDown", function () 
 			awful.util.spawn("brightnessctl set 10-%") 
-			awful.spawn.with_shell("notify-send \"`brightnessctl | grep '%'`\"")
+			awful.spawn.easy_async_with_shell("brightnessctl | grep '%'", function(stdout, stderr) 
+				naughty.destroy_all_notifications()
+				naughty.notify({ 
+					preset = naughty.config.presets.low,
+					text = stdout:gsub("^%s*(.-)%s*$", "%1"), position = "top_right", timeout = 2 })
+			end)
 		end,
 		{description = "-10%", group = "hotkeys"}),
 
@@ -408,14 +421,24 @@ globalkeys = awful.util.table.join(
         function ()
 						awful.spawn.with_shell("for SINK in `pacmd list-sinks | grep 'index:' | cut -b12-`; do pactl set-sink-volume $SINK +5%; done")
             beautiful.volume.update()
-						awful.spawn.with_shell("notify-send \"volume: `amixer sget Master | grep '%' | head -n 1 | sed -E 's/.*\\[([0-9]+%)\\].*/\\1/'`\"")
+						awful.spawn.easy_async_with_shell("amixer sget Master | grep '%' | head -n 1 | sed -E 's/.*\\[([0-9]+%)\\].*/\\1/'", function(stdout, stderr) 
+							naughty.destroy_all_notifications()
+							naughty.notify({ 
+								preset = naughty.config.presets.low,
+								text = 'Volume: ' .. stdout:gsub("^%s*(.-)%s*$", "%1"), position = "top_right", timeout = 2 })
+							end)
         end,
         {description = "volume up", group = "hotkeys"}),
     awful.key({ }, "XF86AudioLowerVolume",
         function ()
 						awful.spawn.with_shell("for SINK in `pacmd list-sinks | grep 'index:' | cut -b12-`; do pactl set-sink-volume $SINK -5%; done")
             beautiful.volume.update()
-						awful.spawn.with_shell("notify-send \"volume: `amixer sget Master | grep '%' | head -n 1 | sed -E 's/.*\\[([0-9]+%)\\].*/\\1/'`\"")
+						awful.spawn.easy_async_with_shell("amixer sget Master | grep '%' | head -n 1 | sed -E 's/.*\\[([0-9]+%)\\].*/\\1/'", function(stdout, stderr) 
+							naughty.destroy_all_notifications()
+							naughty.notify({ 
+								preset = naughty.config.presets.low,
+								text = 'Volume: ' .. stdout:gsub("^%s*(.-)%s*$", "%1"), position = "top_right", timeout = 2 })
+							end)
         end,
         {description = "volume down", group = "hotkeys"}),
     awful.key({ }, "XF86AudioMute",
@@ -648,7 +671,7 @@ awful.rules.rules = {
 
     -- Set Firefox to always map on the first tag on screen 2.
     { rule = { class = "Firefox" },
-      properties = { screen = 1, tag = awful.util.tagnames[2], maximized = true } },
+      properties = { screen = 1, tag = awful.util.tagnames[2] } },
 
     -- Set Slack to always map on the first tag on screen 5.
     { rule = { class = "Slack" },
