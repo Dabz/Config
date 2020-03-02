@@ -256,6 +256,20 @@ globalkeys = my_table.join(
     -- X screen locker
     awful.key({ altkey, "Control" }, "l", function () os.execute(scrlocker) end,
               {description = "lock screen", group = "hotkeys"}),
+        -- Toggle tag on focused client.
+        --
+   awful.key({ modkey, }, "k",
+     function ()
+        if keyboard_intl then
+          naughty.notify({ preset = naughty.config.presets.low, text = "QWERTY" })
+          awful.spawn.with_shell("setxkbmap -variant us")
+        else 
+          naughty.notify({ preset = naughty.config.presets.low, text = "QWERTY International" })
+          awful.spawn.with_shell("setxkbmap -variant intl")
+        end
+        keyboard_intl = not keyboard_intl
+      end
+    ),
 
     -- Hotkeys
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
@@ -497,19 +511,19 @@ globalkeys = my_table.join(
             beautiful.mpd.update()
         end,
         {description = "mpc toggle", group = "widgets"}),
-    awful.key({ altkey, "Control" }, "Down",
+    awful.key({ altkey, "Alt" }, "Down",
         function ()
             os.execute("mpc stop")
             beautiful.mpd.update()
         end,
         {description = "mpc stop", group = "widgets"}),
-    awful.key({ altkey, "Control" }, "Left",
+    awful.key({ altkey, "Alt" }, "Left",
         function ()
             os.execute("mpc prev")
             beautiful.mpd.update()
         end,
         {description = "mpc prev", group = "widgets"}),
-    awful.key({ altkey, "Control" }, "Right",
+    awful.key({ altkey, "Alt" }, "Right",
         function ()
             os.execute("mpc next")
             beautiful.mpd.update()
@@ -706,6 +720,10 @@ awful.rules.rules = {
     { rule = { class = "Firefox" },
       properties = { screen = 1, tag = awful.util.tagnames[2] } },
 
+    -- Set slack to always map on the first tag on screen 5.
+    { rule = { class = "Slack" },
+      properties = { screen = 1, tag = awful.util.tagnames[5] } },
+
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
 }
@@ -800,12 +818,13 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 local function autorun_at_startup(cmd)
 	awful.spawn.with_shell(string.format("pgrep %s > /dev/null || %s", cmd, cmd))
 end
-awful.util.spawn("light-locker --late-locking --lock-on-suspend")
+-- awful.util.spawn("light-locker --late-locking --lock-on-suspend")
 
 autorun_at_startup("nm-applet")
 autorun_at_startup("firefox")
 autorun_at_startup("blueman-applet")
 autorun_at_startup("pasystray")
-autorun_at_startup("slack")
+-- autorun_at_startup("slack")
 autorun_at_startup("copyq")
 autorun_at_startup("albert")
+autorun_at_startup("opensnitch-ui")

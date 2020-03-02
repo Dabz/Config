@@ -26,19 +26,26 @@ Plugin 'scrooloose/syntastic'
 Plugin 'tpope/vim-surround'
 Plugin 'aperezdc/vim-template'
 Plugin 'godlygeek/tabular'
+Plugin 'vim-pandoc/vim-pandoc'
+Plugin 'vim-pandoc/vim-pandoc-syntax'
+Plugin 'shime/vim-livedown'
 Plugin 'ajmwagar/vim-deus'
+Plugin 'jnurmine/Zenburn'
 Plugin 'Valloric/YouCompleteMe'
+Plugin 'vmchale/tomlcheck-vim'
+Plugin 'hashivim/vim-terraform.git'
+Plugin 'rhysd/vim-grammarous'
+Plugin 'Townk/vim-autoclose'
+Plugin 'mbbill/undotree'
+Plugin 'vim-scripts/DoxygenToolkit.vim'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
 
 " theme configuration
 syntax on
-silent! color deus
-set relativenumber
-set expandtab
-set tabstop=2
-let g:airline_theme = "deus"
+silent! color zenburn
+let g:airline_theme = "zenburn"
 
 " YCM configuration
 let g:ycm_cache_omnifunc = 1
@@ -64,6 +71,13 @@ let g:DoxygenToolkit_interCommentTag = "** "
 let g:email = $MAIL
 
 " Syntax configuration
+set relativenumber
+set expandtab
 set tabstop=2
+set softtabstop=2
+set nojoinspaces
 set shiftwidth=2
-set softtabstop=0 noexpandtab
+
+" Vim Terraform configuration
+let g:terraform_align = 1
+let g:terraform_fmt_on_save = 1
