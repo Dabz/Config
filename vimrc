@@ -20,8 +20,6 @@ Plugin 'fatih/vim-go'
 Plugin 'pangloss/vim-javascript'
 Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'tomtom/tlib_vim'
-Plugin 'garbas/vim-snipmate'
-Plugin 'honza/vim-snippets'
 Plugin 'scrooloose/syntastic'
 Plugin 'tpope/vim-surround'
 Plugin 'aperezdc/vim-template'
@@ -44,7 +42,7 @@ filetype plugin indent on    " required
 
 " theme configuration
 syntax on
-silent! color zenburn
+silent! color deus
 let g:airline_theme = "zenburn"
 
 " YCM configuration
@@ -53,6 +51,8 @@ let g:ycm_confirm_extra_conf = 0
 let g:ycm_auto_trigger = 1
 let g:ycm_error_symbol = '!>'
 let g:go_fmt_autosave = 0
+let g:AutoClosePreserveDotReg = 0
+inoremap (<CR> (<Esc>o)<Esc>O
 
 " NERDTree configuration
 autocmd VimEnter * NERDTree
@@ -81,3 +81,7 @@ set shiftwidth=2
 " Vim Terraform configuration
 let g:terraform_align = 1
 let g:terraform_fmt_on_save = 1
+
+" Highlight trailing whitespace
+set list
+set listchars=tab:\ \ ,trail:*

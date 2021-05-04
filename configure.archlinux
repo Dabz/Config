@@ -17,8 +17,8 @@ export NC='\033[0m'
 exec 3<> $LOG
 
 install_package() {
-  if [ -x "$(command -v yaourt)" ]; then
-    PKG_CMD=yaourt
+  if [ -x "$(command -v yay)" ]; then
+    PKG_CMD=yay
   else
     PKG_CMD=pacman
   fi
@@ -63,7 +63,7 @@ configure_system() {
   fi
   locale-gen >&3
   localectl set-locale LANG=$LOCALE
-  ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
+  ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
   hwclock --systohc
   exit_section "Done"
 
@@ -79,9 +79,9 @@ configure_system() {
   fi
   exit_section "Done"
 
-  display_section "Starting dhcpcd"
-  systemctl start dhcpcd >&3
-  systemctl enable dhcpcd >&3
+  display_section "Installing IWD"
+  install_package iwd
+  systemctl enable iwd >&3
   exit_section "Done"
 
   display_section "Installing base devel package"
@@ -91,7 +91,7 @@ configure_system() {
   exit_section Done
 
  display_section "Refreshing base package"
-  yaourt -Syuq --noconfirm >&3
+  pacman -Syuq --noconfirm >&3
   exit_section "Done"
 
   display_section "Installing packages"
@@ -99,7 +99,7 @@ configure_system() {
   install_package xorg-server xterm terminator arandr terminus-font
   install_package alsa-firmware alsa-plugins alsa-tools pulseaudio pavucontrol
   install_package awesome vicious
-  install_package lightdm 
+  install_package lightdm
   install_package nm-connection-editor networkmanager networkmanager-openvpn
   install_package mpd ncmpcpp
   install_package cmake automake dmenu
@@ -107,7 +107,6 @@ configure_system() {
   exit_section "Done"
 
   display_section "Enabling packages"
-  systemctl enable sshd
   systemctl enable lightdm
   systemctl enable mpd
   exit_section "Done"
@@ -135,27 +134,22 @@ configure_user() {
 
   cd $HOME
 
-  display_section "Installing yaourt"
-  if [ ! -x "$(command -v yaourt)" ]; then
+  display_section "Installing yay"
+  if [ ! -x "$(command -v yay)" ]; then
     OLD_PWD=$PWD
     cd /tmp/
-    git clone https://aur.archlinux.org/package-query.git  >&3
-    cd package-query
-    makepkg -si --noconfirm >&3
-    cd ..
-    git clone https://aur.archlinux.org/yaourt.git >&3
-    cd yaourt
-    makepkg -si >&3
-    cd ..
-    yaourt --version >&3
+    git clone https://aur.archlinux.org/yay.git
+    cd yay
+    makepkg -si
+    yay --version >&3
     cd $OLD_PWD
     if [ $? != 0 ]; then
-      echo "An issue occured while installing yaourt for user $USER"
+      echo "An issue occured while installing yay for user $USER"
       exit_ungracefully
     fi
-    exit_section "Yaourt has been installed"
+    exit_section "Yay has been installed"
   else
-    exit_section "Yaourt already exists"
+    exit_section "Yay already exists"
   fi
 
   display_section "Configuring VIM"
@@ -164,7 +158,7 @@ configure_user() {
 
   display_section "Building VIM YCM"
   cd $HOME/.vim/bundle/YouCompleteMe
-  ./install.py --clang-completer  --go-completer --js-completer
+  ./install.sh --ts-completer --go-completer --clang-completer  --java-completer
   exit_section "Done"
 }
 export -f configure_user

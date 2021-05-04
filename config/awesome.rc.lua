@@ -258,11 +258,11 @@ globalkeys = my_table.join(
               {description = "lock screen", group = "hotkeys"}),
         -- Toggle tag on focused client.
         --
-   awful.key({ modkey, }, "k",
+   awful.key({ modkey, "Control" }, "k",
      function ()
         if keyboard_intl then
           naughty.notify({ preset = naughty.config.presets.low, text = "QWERTY" })
-          awful.spawn.with_shell("setxkbmap -variant us")
+          awful.spawn.with_shell("setxkbmap -variant ''")
         else 
           naughty.notify({ preset = naughty.config.presets.low, text = "QWERTY International" })
           awful.spawn.with_shell("setxkbmap -variant intl")
@@ -818,13 +818,16 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 local function autorun_at_startup(cmd)
 	awful.spawn.with_shell(string.format("pgrep %s > /dev/null || %s", cmd, cmd))
 end
+
 -- awful.util.spawn("light-locker --late-locking --lock-on-suspend")
 
 autorun_at_startup("nm-applet")
 autorun_at_startup("firefox")
+autorun_at_startup("dockd --daemon")
 autorun_at_startup("blueman-applet")
 autorun_at_startup("pasystray")
 -- autorun_at_startup("slack")
+autorun_at_startup("caffeine")
 autorun_at_startup("copyq")
 autorun_at_startup("albert")
 autorun_at_startup("opensnitch-ui")
